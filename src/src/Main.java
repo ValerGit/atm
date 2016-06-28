@@ -34,21 +34,29 @@ public class Main {
     }
 
     @SuppressWarnings("OverlyComplexMethod")
-    private static boolean interpretator(String command, boolean hasRequestedQuit) {
+    private static boolean interpreter(String command, boolean hasRequestedQuit) {
         final String[] allCommand = command.split(" ");
         System.out.println("> " + command);
         switch (allCommand[0]) {
             case "put":
                 if (allCommand.length == 3 && StringUtils.isNumeric(allCommand[1])
                         && StringUtils.isNumeric(allCommand[2])) {
-                    atm.putMoney(Integer.parseInt(allCommand[1]), Integer.parseInt(allCommand[2]));
+                    try {
+                        atm.putMoney(Integer.parseInt(allCommand[1]), Integer.parseInt(allCommand[2]));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Введенно неверное число");
+                    }
                 } else {
                     System.out.println("Неверно введены данные");
                 }
                 break;
             case "get":
                 if (allCommand.length == 2 && StringUtils.isNumeric(allCommand[1])) {
-                    atm.getMoney(Integer.parseInt(allCommand[1]));
+                    try {
+                        atm.getMoney(Integer.parseInt(allCommand[1]));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Введенно неверное число");
+                    }
                 } else {
                     System.out.println("Неверно введена сумма");
                 }
@@ -82,7 +90,7 @@ public class Main {
             boolean hasRequestedQuit = false;
             while (!hasRequestedQuit) {
                 final String command = reader.readLine();
-                hasRequestedQuit = interpretator(command, hasRequestedQuit);
+                hasRequestedQuit = interpreter(command, hasRequestedQuit);
             }
         } catch (IOException | RuntimeException e) {
             e.printStackTrace();

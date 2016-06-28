@@ -17,7 +17,7 @@ public class ATM {
 
     public boolean putMoney(int denomination, int num) {
         if (!cashDump.containsKey(denomination)) {
-            System.out.printf("Купюр такого наминала не существует\n");
+            System.out.println("Купюр такого наминала не существует\n");
             return false;
         }
         cashDump.put(denomination, cashDump.get(denomination) + num);
@@ -28,52 +28,62 @@ public class ATM {
 
     public void getMoney(int sumOfMoney) {
         if (sumOfMoney <= 0) {
-            System.out.printf("Введите корректную сумму");
-        } else if (totalAmonth <= sumOfMoney) {
-            for (Map.Entry<Integer, Integer> entry : cashDump.descendingMap().entrySet()) {
-                if (entry.getValue() > 0) {
-                    System.out.printf("%s = %s,", entry.getKey(), entry.getValue());
-                    cashDump.put(entry.getKey(), 0);
-                }
-            }
-            System.out.printf("Всего %s\n", sumOfMoney);
-            totalAmonth -= sumOfMoney;
-            if (totalAmonth < 0) {
-                System.out.printf("Без %s\n", sumOfMoney - totalAmonth);
-                totalAmonth = 0;
-            }
+            System.out.println("Введите корректную сумму");
+        } else if (totalAmonth == 0) {
+            System.out.println("Банкомат пуст");
         } else {
             final List<Integer> result = new ArrayList<>();
-            if (getBanknotesCombination(result, sumOfMoney, 0)) {
-                System.out.printf("Всего %s\n", sumOfMoney);
-                totalAmonth -= sumOfMoney;
+            final BestResult bestResult = getBanknotesCombination(result, sumOfMoney, 0);
+            if (bestResult.getTotal() < sumOfMoney) {
+                withdrawMoney(isEnoughBanknotes(bestResult.getResult()));
+                if (bestResult.getTotal() == 0) {
+                    totalAmonth -= sumOfMoney;
+                    System.out.printf("Всего %s\n", sumOfMoney);
+                } else if (bestResult.getTotal() < sumOfMoney) {
+                    totalAmonth -= sumOfMoney - bestResult.getTotal();
+                    System.out.printf("Всего %s\n", sumOfMoney - bestResult.getTotal());
+                    System.out.printf("Без %s\n", bestResult.getTotal());
+                }
             } else {
-                System.out.printf("Невозможно снять данную сумму");
+                System.out.println("Невозможно снять данную сумму");
             }
         }
     }
 
-    private boolean getBanknotesCombination(List<Integer> result, int total, int position) {
-        if (total == 0) {
-            final TreeMap<Integer, Integer> toWithdraw = isEnoughBanknotes(result);
-            if (toWithdraw != null) {
-                for (Map.Entry<Integer, Integer> entry : toWithdraw.descendingMap().entrySet()) {
-                    System.out.printf("%s = %s\n", entry.getKey(), entry.getValue());
-                    final int update = cashDump.get(entry.getKey()) - entry.getValue();
-                    cashDump.put(entry.getKey(), update);
-                }
-                return true;
+    private void withdrawMoney(TreeMap<Integer, Integer> toWithdraw) {
+        if (toWithdraw != null) {
+            for (Map.Entry<Integer, Integer> entry : toWithdraw.descendingMap().entrySet()) {
+                System.out.printf("%s = %s,", entry.getKey(), entry.getValue());
+                final int update = cashDump.get(entry.getKey()) - entry.getValue();
+                cashDump.put(entry.getKey(), update);
             }
         }
+    }
+
+    private BestResult getBanknotesCombination(List<Integer> result, int total, int position) {
+        final BestResult absolute = new BestResult(total, result);
         for (int i = position; i < cashDump.keySet().size(); i++) {
             final int curr = (int) cashDump.keySet().toArray()[i];
             if (total >= curr) {
-                result.add(curr);
-                if (isEnoughBanknotes(result) != null && getBanknotesCombination(result, total - curr, i)) return true;
+                if (curr*total < total) {
+                    for (int j = 0; j < total; ++j) {
+                        result.add(curr);
+                    }
+                    total -= curr*total;
+                } else {
+                    result.add(curr);
+                }
+                if (isEnoughBanknotes(result) != null) {
+                    final BestResult newCombination = getBanknotesCombination(result, total - curr, i);
+                    assert newCombination != null;
+                    if (newCombination.getTotal() >= 0 && newCombination.getTotal() < absolute.getTotal()) {
+                        absolute.update(newCombination.getTotal(), newCombination.getResult());
+                    }
+                }
                 result.remove(result.size() - 1);
             }
         }
-        return false;
+        return absolute;
     }
 
     private TreeMap<Integer, Integer> isEnoughBanknotes(List<Integer> result) {
@@ -111,4 +121,34 @@ public class ATM {
         System.out.printf("Всего %s\n", totalAmonth);
     }
 
+    public static class BestResult {
+        private int total;
+        private List<Integer> result;
+
+        public BestResult(int total, List<Integer> res) {
+            this.setTotal(total);
+            this.setResult(res);
+        }
+
+        public void update(int tot, List<Integer> res) {
+            this.setTotal(tot);
+            this.setResult(res);
+        }
+
+        public List<Integer> getResult() {
+            return result;
+        }
+
+        public void setResult(List<Integer> result) {
+            this.result = new ArrayList<>(result);
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public void setTotal(int total) {
+            this.total = total;
+        }
+    }
 }

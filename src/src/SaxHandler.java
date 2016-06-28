@@ -10,7 +10,7 @@ import java.util.List;
 
 
 public class SaxHandler extends DefaultHandler {
-    private List<Integer> banknotes = new ArrayList<Integer>();
+    private List<Integer> banknotes = new ArrayList<>();
 
     private String element = null;
     private Object object = null;
@@ -43,10 +43,6 @@ public class SaxHandler extends DefaultHandler {
     }
 
     public List<Integer> getBanknotes() {
-        for (Integer note : banknotes) {
-            System.out.print(note + " ");
-        }
-        System.out.print("\n");
         return banknotes;
     }
 
