@@ -65,14 +65,7 @@ public class ATM {
         for (int i = position; i < cashDump.keySet().size(); i++) {
             final int curr = (int) cashDump.keySet().toArray()[i];
             if (total >= curr) {
-                if (curr*total < total) {
-                    for (int j = 0; j < total; ++j) {
-                        result.add(curr);
-                    }
-                    total -= curr*total;
-                } else {
-                    result.add(curr);
-                }
+                result.add(curr);
                 if (isEnoughBanknotes(result) != null) {
                     final BestResult newCombination = getBanknotesCombination(result, total - curr, i);
                     assert newCombination != null;
