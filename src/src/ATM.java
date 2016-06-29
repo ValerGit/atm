@@ -1,14 +1,13 @@
 package src;
 
-
 import java.util.*;
 
 public class ATM {
-    private int totalAmonth;
+    private int totalAmount;
     private TreeMap<Integer, Integer> cashDump;
 
     public ATM(List<Integer> banknotes) {
-        totalAmonth = 0;
+        totalAmount = 0;
         cashDump = new TreeMap<>();
         for (Integer note : banknotes) {
             cashDump.put(note, 0);
@@ -21,15 +20,15 @@ public class ATM {
             return false;
         }
         cashDump.put(denomination, cashDump.get(denomination) + num);
-        totalAmonth += denomination * num;
-        System.out.printf("Всего %s\n", totalAmonth);
+        totalAmount += denomination * num;
+        System.out.printf("Всего %s\n", totalAmount);
         return true;
     }
 
     public void getMoney(int sumOfMoney) {
         if (sumOfMoney <= 0) {
             System.out.println("Введите корректную сумму");
-        } else if (totalAmonth == 0) {
+        } else if (totalAmount == 0) {
             System.out.println("Банкомат пуст");
         } else {
             final List<Integer> result = new ArrayList<>();
@@ -37,10 +36,10 @@ public class ATM {
             if (bestResult.getTotal() < sumOfMoney) {
                 withdrawMoney(isEnoughBanknotes(bestResult.getResult()));
                 if (bestResult.getTotal() == 0) {
-                    totalAmonth -= sumOfMoney;
+                    totalAmount -= sumOfMoney;
                     System.out.printf("Всего %s\n", sumOfMoney);
                 } else if (bestResult.getTotal() < sumOfMoney) {
-                    totalAmonth -= sumOfMoney - bestResult.getTotal();
+                    totalAmount -= sumOfMoney - bestResult.getTotal();
                     System.out.printf("Всего %s\n", sumOfMoney - bestResult.getTotal());
                     System.out.printf("Без %s\n", bestResult.getTotal());
                 }
@@ -111,7 +110,7 @@ public class ATM {
     }
 
     public void getState() {
-        System.out.printf("Всего %s\n", totalAmonth);
+        System.out.printf("Всего %s\n", totalAmount);
     }
 
     public static class BestResult {

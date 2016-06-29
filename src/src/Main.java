@@ -33,7 +33,6 @@ public class Main {
         return null;
     }
 
-    @SuppressWarnings("OverlyComplexMethod")
     private static boolean interpreter(String command, boolean hasRequestedQuit) {
         final String[] allCommand = command.split(" ");
         System.out.println("> " + command);
